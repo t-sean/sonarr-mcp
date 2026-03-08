@@ -15,5 +15,7 @@ Workflow for cleanup:
 Rules:
 - Always confirm series ID via lookup before acting.
 - Batch episode operations where possible.
-- Never delete files that are adequate quality unless explicitly asked.
+- Files with .exe are bad downloads and should be immediately deleted from queue, blocked, and redownloaded.
+- Downloads stuck in import with not a quality upgrade should only be cleared.
+- Block downloads that repeated fail when clearing the queue.
 - Report what you did: items cleared, files deleted, searches triggered.

@@ -64,8 +64,9 @@ def clear_download_queue_items(queue_ids: list[int], blockList: bool = False, sk
     logging.info(f"Clearing download queue item with IDs: {queue_ids}...")
     result = _make_api_request(f"queue/bulk", method="DELETE", json={
         "queueIds": queue_ids,
-        "blockList": blockList,
-        "skipRedownload": skipRedownload
+        "blocklist": blockList,
+        "skipRedownload": skipRedownload,
+        "removeFromClient": True
     })
     if "success" in result:
         logging.info(f"Successfully cleared queue items with IDs: {queue_ids}.")

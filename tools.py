@@ -59,16 +59,20 @@ def get_download_queue(page: int) -> dict:
     }
 
 @mcp.tool()
-def clear_download_queue_item(queue_id: int) -> dict:
-    """Remove an item from the download queue by its queue ID."""
-    logging.info(f"Clearing download queue item with ID: {queue_id}...")
-    result = _make_api_request(f"queue/{queue_id}", method="DELETE")
+def clear_download_queue_items(queue_ids: list[int], blockList: bool = False, skipRedownload: bool = False) -> dict:
+    """Remove items from the download queue by their queue IDs. Optionally block the items and/or skip redownload."""
+    logging.info(f"Clearing download queue item with IDs: {queue_ids}...")
+    result = _make_api_request(f"queue/bulk", method="DELETE", json={
+        "queueIds": queue_ids,
+        "blockList": blockList,
+        "skipRedownload": skipRedownload
+    })
     if "success" in result:
-        logging.info(f"Successfully cleared queue item with ID: {queue_id}.")
+        logging.info(f"Successfully cleared queue items with IDs: {queue_ids}.")
         return {"success": True}
     else:
-        logging.error(f"Failed to clear queue item with ID: {queue_id}.")
-        return {"error": "Failed to clear queue item."}
+        logging.error(f"Failed to clear queue items with IDs: {queue_ids}.")
+        return {"error": "Failed to clear queue items."}
 
 @mcp.tool() 
 def download_episodes(episode_ids: list[int]):

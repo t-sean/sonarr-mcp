@@ -32,26 +32,31 @@ def _make_api_request(endpoint: str, method: str = "GET", **kwargs) -> dict:
         return {"error": error_msg}
 
 @mcp.tool()  
-def get_download_queue() -> list[dict]:
-    """Get the current download queue from Sonarr. Use this to find broken or stalled downloads."""
+def get_download_queue(page: int) -> dict:
+    """Get the current download queue from Sonarr. Use this to find broken or stalled downloads. Results are paginated."""
     logging.info("Fetching download queue...")
-    queue = _make_api_request("queue")
-    records = queue.get("records", []) if isinstance(queue, dict) else []
+    queue = _make_api_request("queue", params={"page": page})
+    records = queue.get("records", [])
     logging.info(f"Found {len(records)} item(s) in the download queue.")
-    return [
-        {
-            "queueId": r.get("id"),
-            "seriesId": r.get("seriesId"),
-            "seasonNumber": r.get("seasonNumber"),
-            "episodeId": r.get("episodeId"),
-            "title": r.get("title"),
-            "status": r.get("status"),
-            "trackedDownloadStatus": r.get("trackedDownloadStatus"),
-            "statusMessages": r.get("statusMessages"),
-            "errorMessage": r.get("errorMessage"),
-        }
-        for r in records
-    ]
+    return {
+        "page": queue.get("page"),
+        "pageSize": queue.get("pageSize"),
+        "totalRecords": queue.get("totalRecords"),
+        "records": [
+            {
+                "queueId": r.get("id"),
+                "seriesId": r.get("seriesId"),
+                "seasonNumber": r.get("seasonNumber"),
+                "episodeId": r.get("episodeId"),
+                "title": r.get("title"),
+                "status": r.get("status"),
+                "trackedDownloadStatus": r.get("trackedDownloadStatus"),
+                "statusMessages": r.get("statusMessages"),
+                "errorMessage": r.get("errorMessage"),
+            }
+            for r in records
+        ],
+    }
 
 @mcp.tool()
 def clear_download_queue_item(queue_id: int) -> dict:

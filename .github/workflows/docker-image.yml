@@ -1,0 +1,32 @@
+name: Docker Image CI
+env:
+  REGISTRY: ghcr.io/t-sean/sonarr-mcp
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    permissions:
+        contents: read
+        packages: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Version
+      id: tag
+      run: echo "version=0.1.$(date +%s)" >> $GITHUB_OUTPUT
+    - name: Build
+      run: |
+        docker build . --file Dockerfile --tag ${{env.REGISTRY}}:${{steps.tag.outputs.version}} --tag ${{env.REGISTRY}}:latest
+    - name: Push
+      run: |
+        docker push ${{env.REGISTRY}}:latest
+        docker push ${{env.REGISTRY}}:${{steps.tag.outputs.version}}
